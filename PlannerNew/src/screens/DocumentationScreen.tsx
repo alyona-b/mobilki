@@ -17,12 +17,12 @@ interface DocumentationScreenProps {
 
 const DocumentationScreen: React.FC<DocumentationScreenProps> = ({ onGoBack }) => {
   const { user } = useAuth();
-  const [currentUrl, setCurrentUrl] = useState('https://github.com/alyona-b/mobilki');
+  const [currentUrl, setCurrentUrl] = useState('https://alyona-b.github.io/mobilki/#/');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
   // URL вашей документации на GitHub Pages
-  const docsUrl = 'https://github.com/alyona-b/mobilki';
+  const docsUrl = 'https://alyona-b.github.io/mobilki/#/';
 
   // Обработчик навигации внутри WebView
   const handleNavigationStateChange = (navState: any) => {
@@ -54,7 +54,7 @@ const DocumentationScreen: React.FC<DocumentationScreenProps> = ({ onGoBack }) =
   // Обработка внутренних ссылок
   const onShouldStartLoadWithRequest = (request: any) => {
     // Если ссылка ведет на другой домен - открываем в браузере
-    if (!request.url.startsWith('https://github.com/alyona-b/mobilki')) {
+    if (!request.url.startsWith('https://alyona-b.github.io/mobilki/#/')) {
       Linking.openURL(request.url);
       return false;
     }

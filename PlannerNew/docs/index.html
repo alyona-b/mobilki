@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Документация для приложения MyPlanner">
+  <title>MyPlanner - Документация</title>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/lib/themes/vue.css">
+  <style>
+    :root {
+      --theme-color: #3498db;
+      --base-font-size: 16px;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+    
+    .app-name-link img {
+      height: 40px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+    
+    .sidebar {
+      background-color: #f8f9fa;
+    }
+    
+    .markdown-section a {
+      color: var(--theme-color);
+    }
+    
+    .cover {
+      background: linear-gradient(135deg, #3498db, #8e44ad);
+      color: white;
+    }
+    
+    .cover-main {
+      color: white;
+    }
+    
+    .cover-main h1 {
+      color: white;
+      font-size: 3em;
+    }
+    
+    .cover-main p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.2em;
+    }
+    
+    /* Адаптивность для мобильных */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 280px;
+      }
+      .content {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">Загрузка документации...</div>
+  
+  <script>
+    window.$docsify = {
+      name: '📱 MyPlanner',
+      repo: 'https://github.com/ваш-аккаунт/PlannerNew',
+      loadSidebar: true,
+      subMaxLevel: 3,
+      auto2top: true,
+      coverpage: true,
+      search: {
+        paths: 'auto',
+        placeholder: 'Поиск в документации...',
+        noData: 'Ничего не найдено',
+        depth: 3
+      },
+      plugins: [
+        function(hook, vm) {
+          hook.beforeEach(function(content) {
+            // Добавляем кнопку "Назад" в каждый файл
+            return '[← Назад к оглавлению](?id=README.md)\n\n' + content;
+          });
+        }
+      ]
+    }
+  </script>
+  
+  <!-- Docsify Core -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  
+  <!-- Плагины -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
+  
+  <!-- Иконки -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/emoji.min.js"></script>
+</body>
+</html>

@@ -7,7 +7,6 @@
   <meta name="description" content="Документация для приложения MyPlanner">
   <title>MyPlanner - Документация</title>
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/lib/themes/vue.css">
   <style>
     :root {
       --theme-color: #3498db;
@@ -16,6 +15,16 @@
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      padding: 0;
+      margin: 0;
+    }
+    
+    #app {
+      height: 100vh;
+    }
+    
+    .markdown-section {
+      padding-top: 20px !important;
     }
     
     .app-name-link img {
@@ -24,55 +33,86 @@
       margin-right: 10px;
     }
     
-    .sidebar {
-      background-color: #f8f9fa;
-    }
-    
-    .markdown-section a {
-      color: var(--theme-color);
-    }
-    
     .cover {
       background: linear-gradient(135deg, #3498db, #8e44ad);
       color: white;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .cover-main {
       color: white;
+      text-align: center;
+      padding: 20px;
     }
     
     .cover-main h1 {
       color: white;
-      font-size: 3em;
+      font-size: 2.5em;
+      margin-bottom: 20px;
     }
     
     .cover-main p {
       color: rgba(255, 255, 255, 0.9);
       font-size: 1.2em;
+      margin-bottom: 30px;
     }
     
-    /* Адаптивность для мобильных */
+    .cover-main .buttons a {
+      display: inline-block;
+      padding: 12px 24px;
+      background: white;
+      color: #3498db;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: bold;
+      margin: 5px;
+      transition: transform 0.3s;
+    }
+    
+    .cover-main .buttons a:hover {
+      transform: translateY(-2px);
+    }
+    
+    /* Убираем лишние отступы в сайдбаре */
+    .sidebar {
+      background-color: #f8f9fa;
+      padding-top: 20px;
+    }
+    
+    .sidebar ul {
+      margin-top: 0;
+      padding-left: 15px;
+    }
+    
+    /* Для мобильных устройств */
     @media (max-width: 768px) {
       .sidebar {
         width: 280px;
       }
       .content {
-        padding: 15px;
+        padding: 10px;
+      }
+      .markdown-section {
+        padding: 15px !important;
       }
     }
   </style>
 </head>
 <body>
-  <div id="app">Загрузка документации...</div>
+  <div id="app"></div>
   
   <script>
     window.$docsify = {
       name: '📱 MyPlanner',
-      repo: 'https://github.com/ваш-аккаунт/PlannerNew',
+      repo: 'https://github.com/alyona-b/mobilki',
       loadSidebar: true,
       subMaxLevel: 3,
       auto2top: true,
       coverpage: true,
+      maxLevel: 3,
       search: {
         paths: 'auto',
         placeholder: 'Поиск в документации...',
@@ -82,8 +122,32 @@
       plugins: [
         function(hook, vm) {
           hook.beforeEach(function(content) {
-            // Добавляем кнопку "Назад" в каждый файл
-            return '[← Назад к оглавлению](?id=README.md)\n\n' + content;
+            // Убираем кнопку "Назад" для главной страницы
+            if (vm.route.path === '/' || vm.route.path === '/README') {
+              return content;
+            }
+            // Добавляем кнопку "Назад" только для внутренних страниц
+            return '[← Назад к оглавлению](?id=/)\n\n' + content;
+          });
+          
+          // Скрываем разделы в сайдбаре
+          hook.doneEach(function() {
+            // Убираем "Руководство пользователя" и "Для разработчиков"
+            setTimeout(() => {
+              const sidebar = document.querySelector('.sidebar-nav');
+              if (sidebar) {
+                const items = sidebar.querySelectorAll('li');
+                items.forEach(item => {
+                  const text = item.textContent.trim();
+                  if (text === 'Руководство пользователя' || 
+                      text === 'Для разработчиков' ||
+                      text.includes('Разработка') ||
+                      text.includes('Поддержка')) {
+                    item.style.display = 'none';
+                  }
+                });
+              }
+            }, 100);
           });
         }
       ]

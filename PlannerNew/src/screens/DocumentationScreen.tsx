@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   View, 
-  Text, // ← ДОБАВЬТЕ ЭТОТ ИМПОРТ
+  Text,
   StyleSheet, 
   SafeAreaView,
   TouchableOpacity,
@@ -17,26 +17,71 @@ interface DocumentationScreenProps {
 
 const DocumentationScreen: React.FC<DocumentationScreenProps> = ({ onGoBack }) => {
   const { user } = useAuth();
+  const webViewRef = useRef<WebView>(null);
   const [currentUrl, setCurrentUrl] = useState('https://alyona-b.github.io/mobilki/#/');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // URL вашей документации на GitHub Pages
   const docsUrl = 'https://alyona-b.github.io/mobilki/#/';
 
-  // Обработчик навигации внутри WebView
+  // Исправленный JavaScript без синтаксических ошибок
+  const injectedJavaScript = `
+(function() {
+  const backLinks = document.querySelectorAll('a[href*="Назад к оглавлению"]');
+  backLinks.forEach(link => {
+    if (window.location.hash === '#/' || window.location.hash === '' || window.location.hash === '#README') {
+      link.style.display = 'none';
+    }
+  });
+  
+  const sections = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  sections.forEach(section => {
+    const text = section.textContent.trim();
+    if (text.includes('Разработка') || 
+        text.includes('Поддержка') || 
+        text.includes('Быстрый старт') ||
+        text.includes('Для разработчиков') ||
+        text === 'Руководство пользователя') {
+      section.style.display = 'none';
+      let nextElement = section.nextElementSibling;
+      while(nextElement && !nextElement.matches('h1, h2, h3, h4, h5, h6')) {
+        nextElement.style.display = 'none';
+        nextElement = nextElement.nextElementSibling;
+      }
+    }
+  });
+  
+  window.scrollTo(0, 0);
+  
+  const content = document.querySelector('.markdown-section');
+  if (content) {
+    content.style.paddingTop = '20px';
+  }
+  
+  const firstElement = document.querySelector('.markdown-body > *:first-child');
+  if (firstElement && firstElement.textContent.trim() === '') {
+    firstElement.style.display = 'none';
+  }
+  
+  setTimeout(() => {
+    window.scrollTo(0, 0);
+    window.ReactNativeWebView.postMessage('ready');
+  }, 1500);
+  
+  return true;
+})();
+`;
+
   const handleNavigationStateChange = (navState: any) => {
     setCurrentUrl(navState.url);
   };
 
-  // Открыть ссылку во внешнем браузере
   const handleOpenInBrowser = () => {
     Linking.openURL(currentUrl).catch(err => 
       console.error('Ошибка открытия ссылки:', err)
     );
   };
 
-  // Обработка загрузки
   const handleLoadStart = () => {
     setIsLoading(true);
     setError(null);
@@ -51,19 +96,21 @@ const DocumentationScreen: React.FC<DocumentationScreenProps> = ({ onGoBack }) =
     setError('Не удалось загрузить документацию');
   };
 
-  // Обработка внутренних ссылок
   const onShouldStartLoadWithRequest = (request: any) => {
-    // Если ссылка ведет на другой домен - открываем в браузере
-    if (!request.url.startsWith('https://alyona-b.github.io/mobilki/#/')) {
+    if (!request.url.startsWith('https://alyona-b.github.io/mobilki')) {
       Linking.openURL(request.url);
       return false;
     }
     return true;
   };
 
-  // Резервный текст на случай ошибки
-  const fallbackContent = `
-📱 MyPlanner - Документация
+  const handleMessage = (event: any) => {
+    if (event.nativeEvent.data === 'ready') {
+      console.log('WebView готов');
+    }
+  };
+
+  const fallbackContent = `📱 MyPlanner - Документация
 
 Приложение для управления задачами, заметками и событиями.
 
@@ -90,9 +137,7 @@ const DocumentationScreen: React.FC<DocumentationScreenProps> = ({ onGoBack }) =
 - Структурирование информации
 
 🔄 Синхронизация
-Данные синхронизируются между устройствами через Firebase.
-
-`;
+Данные синхронизируются между устройствами через Firebase.`;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -120,8 +165,11 @@ const DocumentationScreen: React.FC<DocumentationScreenProps> = ({ onGoBack }) =
             </View>
           )}
           <WebView
+            ref={webViewRef}
             source={{ uri: docsUrl }}
             style={styles.webview}
+            injectedJavaScript={injectedJavaScript}
+            onMessage={handleMessage}
             onNavigationStateChange={handleNavigationStateChange}
             javaScriptEnabled={true}
             domStorageEnabled={true}
@@ -131,7 +179,6 @@ const DocumentationScreen: React.FC<DocumentationScreenProps> = ({ onGoBack }) =
             onError={handleError}
             onHttpError={handleError}
             allowsBackForwardNavigationGestures={true}
-            // Обработка внутренних ссылок
             onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
           />
         </>
